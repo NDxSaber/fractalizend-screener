@@ -28,6 +28,15 @@ a {
   display: flex;
 }
 
+.search-bar {
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid gray;
+  padding: 12px;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
 .card {
   background-color: white;
   padding: 16px;

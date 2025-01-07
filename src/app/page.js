@@ -7,6 +7,7 @@ export default function Home() {
     const [alerts, setAlerts] = useState([]);
     const [processedData, setProcessedData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState(""); // State for search query
 
     useEffect(() => {
         // Fetch alerts from the backend
@@ -23,7 +24,7 @@ export default function Home() {
         };
 
         fetchAlerts();
-        const interval = setInterval(fetchAlerts, 5000); // Refresh every 5 second
+        const interval = setInterval(fetchAlerts, 5000); // Refresh every 5 seconds
 
         return () => clearInterval(interval); // Cleanup on component unmount
     }, []);
@@ -59,25 +60,42 @@ export default function Home() {
         setProcessedData(organizedData);
     };
 
-    const renderBar = (isBullish) => isBullish ? <span className='bullish-bar'/> : <span className='bearish-bar'/>
+    const renderBar = (isBullish) => isBullish ? <span className='bullish-bar' /> : <span className='bearish-bar' />;
+
+    // Filter processed data based on search query
+    const filteredPairs = Object.keys(processedData).filter(pair =>
+        pair.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <div className='content'>
             <h1 className='title'>FractalizeND Screener</h1>
+
+            {/* Search Bar */}
+            <div className='search-container'>
+                <input
+                    className="search-field"
+                    type='text'
+                    placeholder='Search pairs...'
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className='search-bar'
+                />
+            </div>
+
             {loading ? (
                 <p>Loading...</p>
-            ) : Object.keys(processedData).length === 0 ? (
-                <p>No alerts available.</p>
+            ) : filteredPairs.length === 0 ? (
+                <p>No alerts available for your search.</p>
             ) : (
                 <div className="pairs">
-                    {Object.keys(processedData).map(pair => (
+                    {filteredPairs.map(pair => (
                         <div className="card" key={pair}>
                             <h2 className="card-title">{pair}</h2>
                             {Object.keys(processedData[pair]).map(timeframe => (
-                                <div className="timeframe-screener">
+                                <div className="timeframe-screener" key={timeframe}>
                                     <div className="timeframe-name">{timeframe}: </div>
                                     <div className="timeframe-value">
-                                        <span className='bullish-box'/>
                                         {renderBar(processedData[pair][timeframe][0].isBullish)}
                                     </div>
                                 </div>
