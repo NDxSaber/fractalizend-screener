@@ -29,6 +29,23 @@ export default function Home() {
         return () => clearInterval(interval); // Cleanup on component unmount
     }, []);
 
+    // Define the desired timeframe order
+    const timeframeOrder = [
+        "1S", "5S", "10S", "15S", "30S", "45S",
+        "1", "5", "15", "30",
+        "1H", "4H", "8H", "12H",
+        "1D", "2D", "3D",
+        "1W", "2W",
+        "1M"
+    ];
+
+    // Custom sort function for timeframes
+    const sortTimeframes = (a, b) => {
+        const indexA = timeframeOrder.indexOf(a);
+        const indexB = timeframeOrder.indexOf(b);
+        return indexA - indexB;
+    };
+
     // Function to process alerts
     const processAlerts = (alertData) => {
         const organizedData = {};
@@ -74,7 +91,6 @@ export default function Home() {
             {/* Search Bar */}
             <div className='search-container'>
                 <input
-                    className="search-field"
                     type='text'
                     placeholder='Search pairs...'
                     value={searchQuery}
@@ -92,14 +108,16 @@ export default function Home() {
                     {filteredPairs.map(pair => (
                         <div className="card" key={pair}>
                             <h2 className="card-title">{pair}</h2>
-                            {Object.keys(processedData[pair]).map(timeframe => (
-                                <div className="timeframe-screener" key={timeframe}>
-                                    <div className="timeframe-name">{timeframe}: </div>
-                                    <div className="timeframe-value">
-                                        {renderBar(processedData[pair][timeframe][0].isBullish)}
+                            {Object.keys(processedData[pair])
+                                .sort(sortTimeframes) // Apply the custom sort function
+                                .map(timeframe => (
+                                    <div className="timeframe-screener" key={timeframe}>
+                                        <div className="timeframe-name">{timeframe}: </div>
+                                        <div className="timeframe-value">
+                                            {renderBar(processedData[pair][timeframe][0].isBullish)}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
                         </div>
                     ))}
                 </div>
