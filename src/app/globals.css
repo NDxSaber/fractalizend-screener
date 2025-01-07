@@ -42,7 +42,6 @@ a {
   padding: 16px;
   border-radius: 8px;
   display: block;
-  width: 200px;
   text-align: left;
   box-shadow: 0 2px 8px rgba(48,49,53,0.16);
   margin-right: 12px;
@@ -59,11 +58,20 @@ a {
 }
 
 .timeframe-name {
-  width: 50px;
+  width: 100px;
 }
 
 .timeframe-value {
-  width: calc(100% - 50px);
+  width: 80px;
+  margin-right: 12px;
+}
+
+.timeframe-value.last {
+  margin-right: 0;
+}
+
+.text-only {
+  text-align: center;
 }
 
 .bullish-bar {
@@ -78,4 +86,9 @@ a {
   background-color: #FF748B;
   display: block;
   height: 15px;
+}
+
+.divider {
+  border-top: 1px dashed gray;
+  margin: 20px 0;
 }
