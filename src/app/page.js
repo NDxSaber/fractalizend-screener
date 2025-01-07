@@ -33,7 +33,7 @@ export default function Home() {
         const organizedData = {};
 
         alertData.forEach(alert => {
-            const { pairName, timeframe, bullishOrBearish, date } = alert;
+            const { pairName, timeframe, isBullish, date } = alert;
 
             // Initialize pair object if not exists
             if (!organizedData[pairName]) {
@@ -46,7 +46,7 @@ export default function Home() {
             }
 
             // Add alert to the respective timeframe
-            organizedData[pairName][timeframe].push({ bullishOrBearish, date });
+            organizedData[pairName][timeframe].push({ isBullish, date });
         });
 
         // Sort alerts by date in descending order (newest first)
@@ -59,37 +59,27 @@ export default function Home() {
         setProcessedData(organizedData);
     };
 
+    const renderBar = (isBullish) => isBullish ? <span className='bullish-bar'/> : <span className='bearish-bar'/>
+
     return (
-        <div>
-            <h1>TradingView Alerts Screener</h1>
+        <div className='content'>
+            <h1 className='title'>FractalizeND Screener</h1>
             {loading ? (
                 <p>Loading...</p>
             ) : Object.keys(processedData).length === 0 ? (
                 <p>No alerts available.</p>
             ) : (
-                <div>
+                <div className="pairs">
                     {Object.keys(processedData).map(pair => (
-                        <div key={pair}>
-                            <h2>{pair}</h2>
+                        <div className="card" key={pair}>
+                            <h2 className="card-title">{pair}</h2>
                             {Object.keys(processedData[pair]).map(timeframe => (
-                                <div key={timeframe}>
-                                    <h3>Timeframe: {timeframe}</h3>
-                                    <table border="1">
-                                        <thead>
-                                            <tr>
-                                                <th>Bullish/Bearish</th>
-                                                <th>Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {processedData[pair][timeframe].map((alert, index) => (
-                                                <tr key={index}>
-                                                    <td>{alert.bullishOrBearish}</td>
-                                                    <td>{new Date(alert.date).toLocaleString()}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                <div className="timeframe-screener">
+                                    <div className="timeframe-name">{timeframe}: </div>
+                                    <div className="timeframe-value">
+                                        <span className='bullish-box'/>
+                                        {renderBar(processedData[pair][timeframe][0].isBullish)}
+                                    </div>
                                 </div>
                             ))}
                         </div>
