@@ -136,7 +136,6 @@ export default function Home() {
         pair.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-
     return (
         <div className='content'>
             <h1 className='title'>FractalizeND Screener</h1>
@@ -158,7 +157,7 @@ export default function Home() {
                 <p>No screener available for your search.</p>
             ) : (
                 <div className="pairs">
-                    {Object.entries(screenerData).map(([pair, data]) => (
+                    {filteredPairs.map((pair) => (
                         <div className="card" key={pair}>
                             <h2 className="card-title">{pair}</h2>
                             <div className="timeframe-screener">
@@ -191,7 +190,7 @@ export default function Home() {
 
                             {Array.of('30S', '1', '5', '15', '30', '1H', '4H', '1D').map((timeframe) => {
                                 const tfKey = `tf${timeframe}`;
-                                const tfData = data[tfKey] || {}; // Safely access tfData, defaulting to an empty object
+                                const tfData = screenerData[pair][tfKey] || {}; // Safely access tfData, defaulting to an empty object
 
                                 return (
                                     <div className="timeframe-screener" key={timeframe}>
