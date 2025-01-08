@@ -115,8 +115,7 @@ export default function Home() {
                     Object.entries(newScreenerData).forEach(([pair, data]) => {
                         updateFirestoreObject(data, pair);
                     })
-
-                    getData();
+                    setScreenerData(newScreenerData);
                 }                
             } catch (error) {
                 console.error('Error fetching alerts:', error);
