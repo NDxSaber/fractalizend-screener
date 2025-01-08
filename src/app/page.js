@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { collection, getDocs, query, doc, updateDoc, onSnapshot } from "firebase/firestore";
+import { collection, getDoc, doc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase/firebase";
 
 const getTimeframeName = (timeframe) => {
@@ -58,17 +58,33 @@ export default function Home() {
     // Update Firebase Firestore Document
     const updateFirestoreObject = async (newScreenerData, documentId) => {
         const docRef = doc(db, "pairScreener", documentId);
-    
+
         try {
+            // Fetch existing document data
+            const existingDoc = await getDoc(docRef);
+
+            if (existingDoc.exists()) {
+                const existingData = existingDoc.data();
+
+                // Check if newScreenerData is different
+                const isDataChanged = JSON.stringify(newScreenerData) !== JSON.stringify(existingData);
+
+                if (!isDataChanged) {
+                    console.log(`Document ${documentId} is up-to-date, no update needed.`);
+                    return;
+                }
+            }
+
+            // Proceed with the update if data is different
             const flatData = {};
             Object.entries(newScreenerData).forEach(([key, value]) => {
                 flatData[key] = value; // Flatten nested objects if needed
             });
-    
+
             await updateDoc(docRef, flatData);
-            console.log("Document successfully updated!");
+            console.log(`Document ${documentId} successfully updated!`);
         } catch (error) {
-            console.error("Error updating document: ", error);
+            console.error(`Error updating document ${documentId}:`, error);
         }
     };
 
@@ -90,31 +106,28 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        // Fetch alerts from the backend
         const fetchAlerts = async () => {
             try {
                 const response = await axios.get('https://tradingview-backend-2nd.vercel.app/api/alerts');
                 let newScreenerData = {};
-                // save data to firebase
                 if (screenerData && response.data) {
                     newScreenerData = createUniquenessAlert(response.data, screenerData);
                     Object.entries(newScreenerData).forEach(([pair, data]) => {
                         updateFirestoreObject(data, pair);
-                    })
-                }                
+                    });
+                }
             } catch (error) {
                 console.error('Error fetching alerts:', error);
             } finally {
                 setLoading(false);
             }
         };
-
+    
         fetchAlerts();
-        const interval = setInterval(fetchAlerts, 5000); // Refresh every 5 seconds
-
-        return () => clearInterval(interval); // Cleanup on component unmount
+        const interval = setInterval(fetchAlerts, 5000);
+    
+        return () => clearInterval(interval);
     }, [screenerData]);
-
 
     const renderBar = (isBullish) => isBullish ? <span className='bullish-bar' /> : <span className='bearish-bar' />;
 
