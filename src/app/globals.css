@@ -82,6 +82,13 @@ a {
   height: 15px;
 }
 
+.gray-bar {
+  border-radius: 8px;
+  background-color: gray;
+  display: block;
+  height: 15px;
+}
+
 .bearish-bar {
   border-radius: 8px;
   background-color: #FF748B;

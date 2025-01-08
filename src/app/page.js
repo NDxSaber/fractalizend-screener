@@ -13,8 +13,6 @@ const getTimeframeName = (timeframe) => {
     return timeframe;
 };
 
-const isEmptyObject = (obj = {}) => Object.keys(obj).length <= 0;
-
 const USE_STRUCTURE_SCREENER = false;
 
 export default function Home() {
@@ -124,12 +122,21 @@ export default function Home() {
         };
     
         fetchAlerts();
-        const interval = setInterval(fetchAlerts, 5000);
+        const interval = setInterval(() => {
+            setIntervalCount((prevCount) => {
+              const newCount = prevCount + 1;
+              if (newCount >= 10) {
+                window.location.reload(); // Reload the page after 10 intervals
+              }
+              return newCount;
+            });
+            fetchAlerts();
+          }, 10000);
     
         return () => clearInterval(interval);
     }, [screenerData]);
 
-    const renderBar = (isBullish) => isBullish ? <span className='bullish-bar' /> : <span className='bearish-bar' />;
+    const renderBar = (isBullish, isDisabled = false) => isDisabled ? <span className='gray-bar' /> : isBullish ? <span className='bullish-bar' /> : <span className='bearish-bar' />;
 
     // Filter processed data based on search query
     const filteredPairs = Object.keys(screenerData).filter(pair =>
@@ -162,7 +169,7 @@ export default function Home() {
                             <h2 className="card-title">{pair}</h2>
                             <div className="timeframe-screener">
                                 <div className="timeframe-name">Entry Status : </div>
-                                <div className="">Ready</div>
+                                <div className="">-</div>
                             </div>
 
                             <div className='divider' />
@@ -175,20 +182,25 @@ export default function Home() {
                             </div>
                             <div className="timeframe-screener">
                                 <div className="timeframe-name">Validation : </div>
-                                {USE_STRUCTURE_SCREENER && <div className="timeframe-value">{renderBar(true)}</div>}
-                                <div className="timeframe-value">{renderBar(true)}</div>
-                                <div className="timeframe-value last">{renderBar(false)}</div>
+                                {USE_STRUCTURE_SCREENER && <div className="timeframe-value">{renderBar(true, true)}</div>}
+                                <div className="timeframe-value">{renderBar(true, true)}</div>
+                                <div className="timeframe-value last">{renderBar(false, true)}</div>
                             </div>
                             <div className="timeframe-screener">
                                 <div className="timeframe-name">Context : </div>
-                                {USE_STRUCTURE_SCREENER && <div className="timeframe-value">{renderBar(true)}</div>}
-                                <div className="timeframe-value">{renderBar(true)}</div>
-                                <div className="timeframe-value last">{renderBar(false)}</div>
+                                {USE_STRUCTURE_SCREENER && <div className="timeframe-value">{renderBar(true, true)}</div>}
+                                <div className="timeframe-value">{renderBar(true, true)}</div>
+                                <div className="timeframe-value last">{renderBar(false, true)}</div>
                             </div>
 
                             <div className='divider' />
 
-                            {Array.of('30S', '1', '5', '15', '30', '1H', '4H', '1D').map((timeframe) => {
+                            {Array.of('30S', '1', '5', '15', '30', '1H', '4H', '1D', '1W', '1M').map((timeframe) => {
+                                if (
+                                    (pair === 'USDIDR' || pair === 'BBRI' || pair === 'DOGEUSDT')
+                                    && (timeframe === '30S' || timeframe === '1' || timeframe === '5' || timeframe === '15' || timeframe === '30' || timeframe === '1H' || timeframe === '4H')
+                                )
+                                    return;
                                 const tfKey = `tf${timeframe}`;
                                 const tfData = screenerData[pair][tfKey] || {}; // Safely access tfData, defaulting to an empty object
 
