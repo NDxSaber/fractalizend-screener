@@ -111,7 +111,7 @@ export default function Home() {
                 let newScreenerData = {};
                 // save data to firebase
                 if (screenerData && response.data) {
-                    newScreenerData = createUniquenessAlert(mockData, screenerData);
+                    newScreenerData = createUniquenessAlert(response.data, screenerData);
                     Object.entries(newScreenerData).forEach(([pair, data]) => {
                         updateFirestoreObject(data, pair);
                     })
