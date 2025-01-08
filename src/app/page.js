@@ -15,6 +15,7 @@ const getTimeframeName = (timeframe) => {
 
 const isEmptyObject = (obj = {}) => Object.keys(obj).length <= 0;
 
+const USE_STRUCTURE_SCREENER = false;
 
 export default function Home() {
     
@@ -101,6 +102,9 @@ export default function Home() {
         };
 
         getData();
+        const interval = setInterval(getData(), 15000); // Refresh every 15 seconds
+
+        return () => clearInterval(interval);
     }, [setScreenerData]);
 
     useEffect(() => {
@@ -137,6 +141,7 @@ export default function Home() {
         pair.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+
     return (
         <div className='content'>
             <h1 className='title'>FractalizeND Screener</h1>
@@ -170,33 +175,33 @@ export default function Home() {
 
                             <div className="timeframe-screener">
                                 <div className="timeframe-name">&nbsp;</div>
-                                <div className="timeframe-value text-only">Structure</div>
+                                {USE_STRUCTURE_SCREENER && <div className="timeframe-value text-only">Structure</div>}
                                 <div className="timeframe-value text-only">MA</div>
                                 <div className="timeframe-value text-only">CanMan</div>
                             </div>
                             <div className="timeframe-screener">
                                 <div className="timeframe-name">Validation : </div>
-                                <div className="timeframe-value">{renderBar(true)}</div>
+                                {USE_STRUCTURE_SCREENER && <div className="timeframe-value">{renderBar(true)}</div>}
                                 <div className="timeframe-value">{renderBar(true)}</div>
                                 <div className="timeframe-value last">{renderBar(false)}</div>
                             </div>
                             <div className="timeframe-screener">
                                 <div className="timeframe-name">Context : </div>
-                                <div className="timeframe-value">{renderBar(true)}</div>
+                                {USE_STRUCTURE_SCREENER && <div className="timeframe-value">{renderBar(true)}</div>}
                                 <div className="timeframe-value">{renderBar(true)}</div>
                                 <div className="timeframe-value last">{renderBar(false)}</div>
                             </div>
 
                             <div className='divider' />
 
-                            {Array.of('15S', '30S', '1', '5', '15', '30', '1H', '4H', '1D').map((timeframe) => {
+                            {Array.of('30S', '1', '5', '15', '30', '1H', '4H', '1D').map((timeframe) => {
                                 const tfKey = `tf${timeframe}`;
                                 const tfData = data[tfKey] || {}; // Safely access tfData, defaulting to an empty object
 
                                 return (
                                     <div className="timeframe-screener" key={timeframe}>
                                         <div className="timeframe-name">{getTimeframeName(timeframe)} :</div>
-                                        <div className="timeframe-value">{renderBar(tfData.structure)}</div>
+                                        {USE_STRUCTURE_SCREENER && <div className="timeframe-value">{renderBar(tfData.structure)}</div>}
                                         <div className="timeframe-value">{renderBar(tfData.ma)}</div>
                                         <div className="timeframe-value last">{renderBar(tfData.candleManipulation)}</div>
                                     </div>
