@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { collection, getDoc, doc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase/firebase";
@@ -16,7 +16,7 @@ const getTimeframeName = (timeframe) => {
 const USE_STRUCTURE_SCREENER = false;
 
 export default function Home() {
-    
+    const counter = useRef(0);
     // {
     //     "pairName": "{{ticker}}",
     //     "timeframe": "{{interval}}",
@@ -123,13 +123,11 @@ export default function Home() {
     
         fetchAlerts();
         const interval = setInterval(() => {
-            setIntervalCount((prevCount) => {
-              const newCount = prevCount + 1;
-              if (newCount >= 10) {
-                window.location.reload(); // Reload the page after 10 intervals
-              }
-              return newCount;
-            });
+            counter.current = counter.current + 1
+            console.log('>>>> counter', counter);
+            if (counter.current > 6) {
+                window.location.reload();
+            }
             fetchAlerts();
           }, 10000);
     
