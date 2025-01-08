@@ -13,6 +13,22 @@ const getTimeframeName = (timeframe) => {
     return timeframe;
 };
 
+const parseToBoolean = (value) => {
+    // Check if the value is already a boolean
+    if (typeof value === 'boolean') {
+        return value;
+    }
+    
+    // If it's a string, check for 'false' (case insensitive)
+    if (typeof value === 'string') {
+        return value.toLowerCase() !== 'false';
+    }
+    
+    // For all other types, use standard truthy/falsy conversion
+    return Boolean(value);
+}
+
+
 const USE_STRUCTURE_SCREENER = false;
 
 export default function Home() {
@@ -46,7 +62,7 @@ export default function Home() {
                 if (!newScreenerData[pairName][`tf${timeframe}`]) {
                     newScreenerData[pairName][`tf${timeframe}`] = {};
                 }
-                newScreenerData[pairName][`tf${timeframe}`][target] = isBullish;
+                newScreenerData[pairName][`tf${timeframe}`][target] = parseToBoolean(isBullish);
             }
         });
     
