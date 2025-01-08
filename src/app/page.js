@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { collection, getDocs, query, doc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, query, doc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase/firebase";
 
 const getTimeframeName = (timeframe) => {
@@ -26,32 +26,9 @@ export default function Home() {
     //     "target": "candleManipulation",
     //     "isBullish": true
     //   }
-    const mockData = [{"pairName":"USDJPY","timeframe":"30","date":"2025-01-07T10:49:30Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"5","date":"2025-01-07T10:49:30Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:49:35Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:49:15Z","target":"structure","isBullish":false},{"pairName":"XAUUSD","timeframe":"15S","date":"2025-01-07T10:48:45Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:48:55Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:48:00Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:48:45Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"15S","date":"2025-01-07T10:48:30Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:48:30Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:48:40Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:48:30Z","target":"ma","isBullish":false},{"pairName":"XAUUSD","timeframe":"5S","date":"2025-01-07T10:48:30Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:48:15Z","target":"ma","isBullish":false},{"pairName":"XAUUSD","timeframe":"5S","date":"2025-01-07T10:48:15Z","target":"ma","isBullish":false},{"pairName":"XAUUSD","timeframe":"15S","date":"2025-01-07T10:48:00Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:48:05Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:48:00Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"15S","date":"2025-01-07T10:47:45Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:47:45Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:47:50Z","target":"ma","isBullish":true},{"pairName":"XAUUSD","timeframe":"5S","date":"2025-01-07T10:47:45Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:47:35Z","target":"ma","isBullish":false},{"pairName":"XAUUSD","timeframe":"5S","date":"2025-01-07T10:47:20Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:47:15Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:47:05Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:46:45Z","target":"ma","isBullish":false},{"pairName":"XAUUSD","timeframe":"15S","date":"2025-01-07T10:46:45Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:46:50Z","target":"ma","isBullish":true},{"pairName":"XAUUSD","timeframe":"5S","date":"2025-01-07T10:46:25Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"15S","date":"2025-01-07T10:46:00Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:40:00Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"15S","date":"2025-01-07T10:39:30Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:38:00Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:38:50Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:37:00Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:37:45Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:36:45Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:36:00Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:35:00Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:35:00Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:33:45Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:33:00Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:32:15Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:32:00Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:31:00Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:31:15Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:30:15Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:29:30Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:28:00Z","target":"ma","isBullish":true}];
     const [screenerData, setScreenerData] = useState({});
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-
-    const fetchAndProcessData = async () => {
-        try {
-            // Get Data from Firebase
-            const q = query(collection(db, "pairScreener"));
-            const querySnapshot = await getDocs(q);
-            const screenerData = querySnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-
-            // Normalizing
-            const normalizedScreenerData = {};
-            screenerData.forEach((data) => {
-                normalizedScreenerData[data.id] = {...data};
-            })
-
-            return normalizedScreenerData;
-        } catch (error) {
-            console.error("Error fetching data from Firebase:", error);
-        }
-    };
 
     // Create a Unique Alert list base on pairName, timeframe, target
     const createUniquenessAlert = (alerts, screenerData) => {
@@ -96,16 +73,21 @@ export default function Home() {
     };
 
     useEffect(() => {
-        const getData = async () => {
-            const result = await fetchAndProcessData();
-            setScreenerData(result);
-        };
+        const unsubscribe = onSnapshot(collection(db, "pairScreener"), (snapshot) => {
+            const screenerData = {};
+            snapshot.forEach((doc) => {
+                screenerData[doc.id] = { id: doc.id, ...doc.data() };
+            });
+            setScreenerData(screenerData);
+            console.error("Fetching again succeed", screenerData);
 
-        getData();
-        const interval = setInterval(getData(), 15000); // Refresh every 15 seconds
+        }, (error) => {
+            console.error("Error fetching live data from Firestore:", error);
+        });
 
-        return () => clearInterval(interval);
-    }, [setScreenerData]);
+        // Cleanup the listener on component unmount
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
         // Fetch alerts from the backend
