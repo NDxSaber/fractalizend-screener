@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { collection, getDocs, query } from "firebase/firestore";
+import { collection, getDocs, query, doc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase/firebase";
 
 const getTimeframeName = (timeframe) => {
@@ -13,13 +13,22 @@ const getTimeframeName = (timeframe) => {
     return timeframe;
 };
 
+const isEmptyObject = (obj = {}) => Object.keys(obj).length <= 0;
+
+
 export default function Home() {
+    
+    // {
+    //     "pairName": "{{ticker}}",
+    //     "timeframe": "{{interval}}",
+    //     "date": "{{time}}",
+    //     "target": "candleManipulation",
+    //     "isBullish": true
+    //   }
     const mockData = [{"pairName":"USDJPY","timeframe":"30","date":"2025-01-07T10:49:30Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"5","date":"2025-01-07T10:49:30Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:49:35Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:49:15Z","target":"structure","isBullish":false},{"pairName":"XAUUSD","timeframe":"15S","date":"2025-01-07T10:48:45Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:48:55Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:48:00Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:48:45Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"15S","date":"2025-01-07T10:48:30Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:48:30Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:48:40Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:48:30Z","target":"ma","isBullish":false},{"pairName":"XAUUSD","timeframe":"5S","date":"2025-01-07T10:48:30Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:48:15Z","target":"ma","isBullish":false},{"pairName":"XAUUSD","timeframe":"5S","date":"2025-01-07T10:48:15Z","target":"ma","isBullish":false},{"pairName":"XAUUSD","timeframe":"15S","date":"2025-01-07T10:48:00Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:48:05Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:48:00Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"15S","date":"2025-01-07T10:47:45Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:47:45Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:47:50Z","target":"ma","isBullish":true},{"pairName":"XAUUSD","timeframe":"5S","date":"2025-01-07T10:47:45Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:47:35Z","target":"ma","isBullish":false},{"pairName":"XAUUSD","timeframe":"5S","date":"2025-01-07T10:47:20Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:47:15Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:47:05Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:46:45Z","target":"ma","isBullish":false},{"pairName":"XAUUSD","timeframe":"15S","date":"2025-01-07T10:46:45Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:46:50Z","target":"ma","isBullish":true},{"pairName":"XAUUSD","timeframe":"5S","date":"2025-01-07T10:46:25Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"15S","date":"2025-01-07T10:46:00Z","target":"ma","isBullish":false},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:40:00Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"15S","date":"2025-01-07T10:39:30Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:38:00Z","target":"ma","isBullish":true},{"pairName":"US100","timeframe":"5S","date":"2025-01-07T10:38:50Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:37:00Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:37:45Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:36:45Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:36:00Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:35:00Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:35:00Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:33:45Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:33:00Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:32:15Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:32:00Z","target":"ma","isBullish":false},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:31:00Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:31:15Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:30:15Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"15S","date":"2025-01-07T10:29:30Z","target":"ma","isBullish":true},{"pairName":"USDJPY","timeframe":"1","date":"2025-01-07T10:28:00Z","target":"ma","isBullish":true}];
     const [screenerData, setScreenerData] = useState({});
-    const [alerts, setAlerts] = useState(mockData);
-    const [processedData, setProcessedData] = useState({});
     const [loading, setLoading] = useState(false);
-    const [searchQuery, setSearchQuery] = useState(""); // State for search query
+    const [searchQuery, setSearchQuery] = useState("");
 
     const fetchAndProcessData = async () => {
         try {
@@ -34,7 +43,7 @@ export default function Home() {
             // Normalizing
             const normalizedScreenerData = {};
             screenerData.forEach((data) => {
-                normalizedScreenerData[data.name] = {...data.timeframe};
+                normalizedScreenerData[data.id] = {...data};
             })
 
             return normalizedScreenerData;
@@ -44,26 +53,45 @@ export default function Home() {
     };
 
     // Create a Unique Alert list base on pairName, timeframe, target
-    const filterAndTransformAlerts = (alerts) => {
+    const createUniquenessAlert = (alerts, screenerData) => {
         const uniqueCombinations = {};
-        const filteredArray = [];
+        const newScreenerData = JSON.parse(JSON.stringify(screenerData));
     
         alerts.forEach((alert) => {
-            const { pairName, timeframe, target } = alert;
-    
-            // Create a unique key for each combination of pairName, timeframe, and target
+            const { pairName, timeframe, target, isBullish } = alert;
             const key = `${pairName}_${timeframe}_${target}`;
     
-            // If the combination doesn't exist in the result, add it
             if (!uniqueCombinations[key]) {
                 uniqueCombinations[key] = true;
-                filteredArray.push({
-
-                });
+    
+                if (!newScreenerData[pairName]) {
+                    newScreenerData[pairName] = {};
+                }
+                if (!newScreenerData[pairName][`tf${timeframe}`]) {
+                    newScreenerData[pairName][`tf${timeframe}`] = {};
+                }
+                newScreenerData[pairName][`tf${timeframe}`][target] = isBullish;
             }
         });
     
-        return filteredArray;
+        return newScreenerData;
+    };
+
+    // Update Firebase Firestore Document
+    const updateFirestoreObject = async (newScreenerData, documentId) => {
+        const docRef = doc(db, "pairScreener", documentId);
+    
+        try {
+            const flatData = {};
+            Object.entries(newScreenerData).forEach(([key, value]) => {
+                flatData[key] = value; // Flatten nested objects if needed
+            });
+    
+            await updateDoc(docRef, flatData);
+            console.log("Document successfully updated!");
+        } catch (error) {
+            console.error("Error updating document: ", error);
+        }
     };
 
     useEffect(() => {
@@ -80,8 +108,16 @@ export default function Home() {
         const fetchAlerts = async () => {
             try {
                 const response = await axios.get('https://tradingview-backend-2nd.vercel.app/api/alerts');
-                setAlerts(response.data);
-                processAlerts(response.data); // Process the data for display
+                let newScreenerData = {};
+                // save data to firebase
+                if (screenerData && response.data) {
+                    newScreenerData = createUniquenessAlert(mockData, screenerData);
+                    Object.entries(newScreenerData).forEach(([pair, data]) => {
+                        updateFirestoreObject(data, pair);
+                    })
+
+                    getData();
+                }                
             } catch (error) {
                 console.error('Error fetching alerts:', error);
             } finally {
@@ -89,49 +125,17 @@ export default function Home() {
             }
         };
 
-        const aaa = filterAndTransformAlerts(alerts);
-        processAlerts(aaa);
-        // fetchAlerts();
+        fetchAlerts();
         const interval = setInterval(fetchAlerts, 5000); // Refresh every 5 seconds
 
         return () => clearInterval(interval); // Cleanup on component unmount
-    }, []);
+    }, [screenerData]);
 
-    // Function to process alerts
-    const processAlerts = (alertData) => {
-        const organizedData = {};
-
-        alertData.forEach(alert => {
-            const { pairName, timeframe, isBullish, date } = alert;
-
-            // Initialize pair object if not exists
-            if (!organizedData[pairName]) {
-                organizedData[pairName] = {};
-            }
-
-            // Initialize timeframe array if not exists
-            if (!organizedData[pairName][timeframe]) {
-                organizedData[pairName][timeframe] = [];
-            }
-
-            // Add alert to the respective timeframe
-            organizedData[pairName][timeframe].push({ isBullish, date });
-        });
-
-        // Sort alerts by date in descending order (newest first)
-        Object.keys(organizedData).forEach(pair => {
-            Object.keys(organizedData[pair]).forEach(timeframe => {
-                organizedData[pair][timeframe].sort((a, b) => new Date(b.date) - new Date(a.date));
-            });
-        });
-
-        setProcessedData(organizedData);
-    };
 
     const renderBar = (isBullish) => isBullish ? <span className='bullish-bar' /> : <span className='bearish-bar' />;
 
     // Filter processed data based on search query
-    const filteredPairs = Object.keys(processedData).filter(pair =>
+    const filteredPairs = Object.keys(screenerData).filter(pair =>
         pair.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -153,12 +157,19 @@ export default function Home() {
             {loading ? (
                 <p>Loading...</p>
             ) : filteredPairs.length === 0 ? (
-                <p>No alerts available for your search.</p>
+                <p>No screener available for your search.</p>
             ) : (
                 <div className="pairs">
-                    {filteredPairs.map(pair => (
+                    {Object.entries(screenerData).map(([pair, data]) => (
                         <div className="card" key={pair}>
                             <h2 className="card-title">{pair}</h2>
+                            <div className="timeframe-screener">
+                                <div className="timeframe-name">Entry Status : </div>
+                                <div className="">Ready</div>
+                            </div>
+
+                            <div className='divider' />
+
                             <div className="timeframe-screener">
                                 <div className="timeframe-name">&nbsp;</div>
                                 <div className="timeframe-value text-only">Structure</div>
@@ -168,23 +179,31 @@ export default function Home() {
                             <div className="timeframe-screener">
                                 <div className="timeframe-name">Validation : </div>
                                 <div className="timeframe-value">{renderBar(true)}</div>
+                                <div className="timeframe-value">{renderBar(true)}</div>
                                 <div className="timeframe-value last">{renderBar(false)}</div>
                             </div>
                             <div className="timeframe-screener">
                                 <div className="timeframe-name">Context : </div>
                                 <div className="timeframe-value">{renderBar(true)}</div>
+                                <div className="timeframe-value">{renderBar(true)}</div>
                                 <div className="timeframe-value last">{renderBar(false)}</div>
                             </div>
+
                             <div className='divider' />
 
-                            {screenerData.USDJPY && Array.of('1', '5', '15', '30', '1H', '4H', '1D').map((timeframe) => (
-                                <div className="timeframe-screener" key={timeframe.toString()}>
-                                    <div className="timeframe-name">{getTimeframeName(timeframe)} :</div>
-                                    <div className="timeframe-value">{renderBar(screenerData.USDJPY[`tf${timeframe}`].structure)}</div>
-                                    <div className="timeframe-value">{renderBar(screenerData.USDJPY[`tf${timeframe}`].ma)}</div>
-                                    <div className="timeframe-value last">{renderBar(screenerData.USDJPY[`tf${timeframe}`].candleManipulation)}</div>
-                                </div>
-                            ))}
+                            {Array.of('15S', '30S', '1', '5', '15', '30', '1H', '4H', '1D').map((timeframe) => {
+                                const tfKey = `tf${timeframe}`;
+                                const tfData = data[tfKey] || {}; // Safely access tfData, defaulting to an empty object
+
+                                return (
+                                    <div className="timeframe-screener" key={timeframe}>
+                                        <div className="timeframe-name">{getTimeframeName(timeframe)} :</div>
+                                        <div className="timeframe-value">{renderBar(tfData.structure)}</div>
+                                        <div className="timeframe-value">{renderBar(tfData.ma)}</div>
+                                        <div className="timeframe-value last">{renderBar(tfData.candleManipulation)}</div>
+                                    </div>
+                                )
+                            })}
                         </div>
                     ))}
                 </div>
