@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { collection, getDoc, doc, updateDoc, onSnapshot } from "firebase/firestore";
+import { collection, getDoc, doc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase/firebase";
 
 const getTimeframeName = (timeframe) => {
@@ -60,7 +60,7 @@ export default function Home() {
         const docRef = doc(db, "pairScreener", documentId);
 
         try {
-            // Fetch existing document data
+            // Check if the document exists
             const existingDoc = await getDoc(docRef);
 
             if (existingDoc.exists()) {
@@ -73,20 +73,20 @@ export default function Home() {
                     console.log(`Document ${documentId} is up-to-date, no update needed.`);
                     return;
                 }
+
+                // Update document if data is different
+                await updateDoc(docRef, newScreenerData);
+                console.log(`Document ${documentId} successfully updated!`);
+            } else {
+                // Create new document if it doesn't exist
+                await setDoc(docRef, newScreenerData);
+                console.log(`New document ${documentId} successfully created!`);
             }
-
-            // Proceed with the update if data is different
-            const flatData = {};
-            Object.entries(newScreenerData).forEach(([key, value]) => {
-                flatData[key] = value; // Flatten nested objects if needed
-            });
-
-            await updateDoc(docRef, flatData);
-            console.log(`Document ${documentId} successfully updated!`);
         } catch (error) {
-            console.error(`Error updating document ${documentId}:`, error);
+            console.error(`Error updating or creating document ${documentId}:`, error);
         }
     };
+
 
     useEffect(() => {
         const unsubscribe = onSnapshot(collection(db, "pairScreener"), (snapshot) => {
