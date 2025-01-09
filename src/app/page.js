@@ -211,13 +211,13 @@ export default function Home() {
                             {!isSwingOn && !swingPair.includes(pair) && (
                                 <>
                                     <div className="timeframe-screener">
-                                        <div className="timeframe-name">Validation : </div>
+                                        <div className="timeframe-name">Val : </div>
                                         <div className="timeframe-value">{renderBar(true, true)}</div>
                                         <div className="timeframe-value med">{renderBar(true, true)}</div>
                                         <div className="timeframe-value low last">{renderBar(false, true)}</div>
                                     </div>
                                     <div className="timeframe-screener">
-                                        <div className="timeframe-name">Context : </div>
+                                        <div className="timeframe-name">Con : </div>
                                         <div className="timeframe-value">{renderBar(true, true)}</div>
                                         <div className="timeframe-value med">{renderBar(true, true)}</div>
                                         <div className="timeframe-value low last">{renderBar(false, true)}</div>
