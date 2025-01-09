@@ -19,6 +19,13 @@ const getTimeframeName = (timeframe) => {
     return timeframe;
 };
 
+const getQueryStringValue = (key) => {
+    if (typeof location !== 'undefined' && location.search) {
+        return new URLSearchParams(location.search).get(key) ?? '';
+    }
+    return '';  // Return empty string if location is not available
+};
+
 const parseToBoolean = (value) => {
     // Check if the value is already a boolean
     if (typeof value === 'boolean') {
@@ -34,8 +41,8 @@ const parseToBoolean = (value) => {
     return Boolean(value);
 }
 
+const swingPair = ['DOGEUSDT'];
 
-const USE_STRUCTURE_SCREENER = true;
 
 export default function Home() {
     const counter = useRef(0);
@@ -48,7 +55,8 @@ export default function Home() {
     //   }
     const [screenerData, setScreenerData] = useState({});
     const [loading, setLoading] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState(getQueryStringValue("search"));
+    const [isSwingOn, setIsSwingOn] = useState(Boolean(getQueryStringValue("swing")));
 
     // Create a Unique Alert list base on pairName, timeframe, target
     const createUniquenessAlert = (alerts, screenerData) => {
@@ -176,6 +184,13 @@ export default function Home() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className='search-bar'
                 />
+                <div className="switcher">
+                    <label class="switch">
+                        <input type="checkbox" checked={isSwingOn} onClick={() => setIsSwingOn(!isSwingOn)} />
+                        <span class="slider round"></span>
+                    </label>
+                    Swing is {isSwingOn ? 'ON' : 'OFF'}
+                </div>
             </div>
 
             {loading ? (
@@ -188,48 +203,46 @@ export default function Home() {
                         <div className="card" key={pair}>
                             <h2 className="card-title">{pair}</h2>
                             <div className="timeframe-screener">
-                                <div className="timeframe-name">Entry Status : </div>
-                                <div className="">-</div>
-                            </div>
-
-                            <div className='divider' />
-
-                            <div className="timeframe-screener">
                                 <div className="timeframe-name">&nbsp;</div>
-                                {USE_STRUCTURE_SCREENER && <div className="timeframe-value text-only">Structure</div>}
-                                <div className="timeframe-value text-only">MA</div>
-                                <div className="timeframe-value text-only">CanMan</div>
+                                <div className="timeframe-value text-only">Structure</div>
+                                <div className="timeframe-value med text-only">MA</div>
+                                <div className="timeframe-value low text-only">Can</div>
                             </div>
-                            <div className="timeframe-screener">
-                                <div className="timeframe-name">Validation : </div>
-                                {USE_STRUCTURE_SCREENER && <div className="timeframe-value">{renderBar(true, true)}</div>}
-                                <div className="timeframe-value">{renderBar(true, true)}</div>
-                                <div className="timeframe-value last">{renderBar(false, true)}</div>
-                            </div>
-                            <div className="timeframe-screener">
-                                <div className="timeframe-name">Context : </div>
-                                {USE_STRUCTURE_SCREENER && <div className="timeframe-value">{renderBar(true, true)}</div>}
-                                <div className="timeframe-value">{renderBar(true, true)}</div>
-                                <div className="timeframe-value last">{renderBar(false, true)}</div>
-                            </div>
+                            {!isSwingOn && !swingPair.includes(pair) && (
+                                <>
+                                    <div className="timeframe-screener">
+                                        <div className="timeframe-name">Validation : </div>
+                                        <div className="timeframe-value">{renderBar(true, true)}</div>
+                                        <div className="timeframe-value med">{renderBar(true, true)}</div>
+                                        <div className="timeframe-value low last">{renderBar(false, true)}</div>
+                                    </div>
+                                    <div className="timeframe-screener">
+                                        <div className="timeframe-name">Context : </div>
+                                        <div className="timeframe-value">{renderBar(true, true)}</div>
+                                        <div className="timeframe-value med">{renderBar(true, true)}</div>
+                                        <div className="timeframe-value low last">{renderBar(false, true)}</div>
+                                    </div>
+                                    <div className='divider' />
+                                </>
+                            )}
 
-                            <div className='divider' />
 
                             {Array.of('30S', '1', '5', '15', '30', '60', '240', 'D', 'W', 'M').map((timeframe) => {
                                 if (
-                                    (pair === 'USDIDR' || pair === 'BBRI' || pair === 'DOGEUSDT')
-                                    && (timeframe === '30S' || timeframe === '1' || timeframe === '5' || timeframe === '15' || timeframe === '30' || timeframe === '1H' || timeframe === '4H')
+                                    (isSwingOn || swingPair.includes(pair))
+                                    && (timeframe === '30S' || timeframe === '1' || timeframe === '5' || timeframe === '15' || timeframe === '30' || timeframe === '60' || timeframe === '240')
                                 )
                                     return;
+                                
                                 const tfKey = `tf${timeframe}`;
                                 const tfData = screenerData[pair][tfKey] || {}; // Safely access tfData, defaulting to an empty object
 
                                 return (
                                     <div className="timeframe-screener" key={timeframe}>
                                         <div className="timeframe-name">{getTimeframeName(timeframe)} :</div>
-                                        {USE_STRUCTURE_SCREENER && <div className="timeframe-value">{renderBar(tfData.structure)}</div>}
-                                        <div className="timeframe-value">{renderBar(tfData.ma)}</div>
-                                        <div className="timeframe-value last">{renderBar(tfData.candleManipulation)}</div>
+                                        <div className="timeframe-value">{!Array.of('30S', '1', '5').includes(timeframe) ? renderBar(tfData.structure) : ' '}</div>
+                                        <div className="timeframe-value med">{renderBar(tfData.ma)}</div>
+                                        <div className="timeframe-value low last">{renderBar(tfData.candleManipulation)}</div>
                                     </div>
                                 )
                             })}
