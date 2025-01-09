@@ -6,10 +6,16 @@ import { collection, getDoc, doc, setDoc, updateDoc, onSnapshot } from "firebase
 import { db } from "./firebase/firebase";
 
 const getTimeframeName = (timeframe) => {
+    '1', '5', '15', '30', '60', '240', 'D', 'W', 'M'
     if (timeframe === "1") return '1m';
     if (timeframe === "5") return '5m';
     if (timeframe === "15") return '15m';
     if (timeframe === "30") return '30m';
+    if (timeframe === "60") return '1H';
+    if (timeframe === "240") return '4H';
+    if (timeframe === "D") return '1D';
+    if (timeframe === "W") return '1W';
+    if (timeframe === "M") return '1M';
     return timeframe;
 };
 
@@ -29,7 +35,7 @@ const parseToBoolean = (value) => {
 }
 
 
-const USE_STRUCTURE_SCREENER = false;
+const USE_STRUCTURE_SCREENER = true;
 
 export default function Home() {
     const counter = useRef(0);
@@ -209,7 +215,7 @@ export default function Home() {
 
                             <div className='divider' />
 
-                            {Array.of('30S', '1', '5', '15', '30', '1H', '4H', '1D', '1W', '1M').map((timeframe) => {
+                            {Array.of('30S', '1', '5', '15', '30', '60', '240', 'D', 'W', 'M').map((timeframe) => {
                                 if (
                                     (pair === 'USDIDR' || pair === 'BBRI' || pair === 'DOGEUSDT')
                                     && (timeframe === '30S' || timeframe === '1' || timeframe === '5' || timeframe === '15' || timeframe === '30' || timeframe === '1H' || timeframe === '4H')
