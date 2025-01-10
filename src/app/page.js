@@ -115,6 +115,33 @@ export default function Home() {
         }
     };
 
+    const updateQueryString = (key, value) => {
+        const url = new URL(window.location.href);
+    
+        if (value) {
+            // Add or update the query parameter
+            url.searchParams.set(key, value);
+        } else {
+            // Remove the query parameter if value is empty
+            url.searchParams.delete(key);
+        }
+    
+        // Update the URL without reloading the page
+        window.history.replaceState({}, '', url);
+    };
+
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchQuery(value);
+        updateQueryString('search', value);
+    };
+
+    const handleSwingToggle = () => {
+        const newValue = !isSwingOn;
+        setIsSwingOn(newValue);
+        updateQueryString('swing', newValue ? '1' : '0');
+    };
+
 
     useEffect(() => {
         const unsubscribe = onSnapshot(collection(db, "pairScreener"), (snapshot) => {
@@ -181,12 +208,12 @@ export default function Home() {
                     type='text'
                     placeholder='Search pairs...'
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={handleSearchChange}
                     className='search-bar'
                 />
                 <div className="switcher">
                     <label class="switch">
-                        <input type="checkbox" checked={isSwingOn} onClick={() => setIsSwingOn(!isSwingOn)} />
+                        <input type="checkbox" checked={isSwingOn} onClick={handleSwingToggle} />
                         <span class="slider round"></span>
                     </label>
                     Swing is {isSwingOn ? 'ON' : 'OFF'}
