@@ -56,7 +56,7 @@ export default function Home() {
     const [screenerData, setScreenerData] = useState({});
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState(getQueryStringValue("search"));
-    const [isSwingOn, setIsSwingOn] = useState(Boolean(getQueryStringValue("swing")));
+    const [isSwingOn, setIsSwingOn] = useState(getQueryStringValue("swing") === "1" ? true : false);
 
     // Create a Unique Alert list base on pairName, timeframe, target
     const createUniquenessAlert = (alerts, screenerData) => {
