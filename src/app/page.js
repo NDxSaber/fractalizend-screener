@@ -161,9 +161,9 @@ export default function Home() {
                         Object.entries(data).forEach(([timeframeKey, modelObj]) => {
                             if (timeframeKey !== 'id') {
                                 Object.entries(modelObj).forEach(([target, value]) => {
-                                    if (target === 'candleManipulation' && newData[timeframeKey][target] === value) {
-                                        newData[timeframeKey][totalCandleManipulation] += 1;
-                                    }
+                                    // if (target === 'candleManipulation' && newData[timeframeKey][target] === value) {
+                                    //     newData[timeframeKey][totalCandleManipulation] += 1;
+                                    // }
                                     newData[timeframeKey][target] = value
                                 });
                             }
