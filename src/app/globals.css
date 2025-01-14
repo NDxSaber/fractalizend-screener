@@ -159,6 +159,8 @@ input:checked + .slider:before {
   background-color: #00FF9C;
   display: block;
   height: 15px;
+  font-size: 10px;
+  text-align: center;
 }
 
 .gray-bar {
@@ -173,6 +175,8 @@ input:checked + .slider:before {
   background-color: #FF748B;
   display: block;
   height: 15px;
+  font-size: 10px;
+  text-align: center;
 }
 
 .divider {

@@ -92,17 +92,6 @@ export default function Home() {
             const existingDoc = await getDoc(docRef);
 
             if (existingDoc.exists()) {
-                const existingData = existingDoc.data();
-
-                // Check if newScreenerData is different
-                const isDataChanged = JSON.stringify(newScreenerData) !== JSON.stringify(existingData);
-
-                if (!isDataChanged) {
-                    console.log(`Document ${documentId} is up-to-date, no update needed.`);
-                    return;
-                }
-
-                // Update document if data is different
                 await updateDoc(docRef, newScreenerData);
                 console.log(`Document ${documentId} successfully updated!`);
             } else {
@@ -150,7 +139,7 @@ export default function Home() {
                 screenerData[doc.id] = { id: doc.id, ...doc.data() };
             });
             setScreenerData(screenerData);
-            console.error("Fetching again succeed", screenerData);
+            console.log("Fetching again succeed", screenerData);
 
         }, (error) => {
             console.error("Error fetching live data from Firestore:", error);
@@ -168,7 +157,19 @@ export default function Home() {
                 if (screenerData && response.data) {
                     newScreenerData = createUniquenessAlert(response.data, screenerData);
                     Object.entries(newScreenerData).forEach(([pair, data]) => {
-                        updateFirestoreObject(data, pair);
+                        let newData = {...data};
+                        Object.entries(data).forEach(([timeframeKey, modelObj]) => {
+                            if (timeframeKey !== 'id') {
+                                Object.entries(modelObj).forEach(([target, value]) => {
+                                    if (target === 'candleManipulation' && newData[timeframeKey][target] === value) {
+                                        newData[timeframeKey][totalCandleManipulation] += 1;
+                                    }
+                                    newData[timeframeKey][target] = value
+                                });
+                            }
+                        });
+                        console.log('>>>> newData', newData);
+                        updateFirestoreObject(newData, pair);
                     });
                 }
             } catch (error) {
@@ -191,7 +192,7 @@ export default function Home() {
         return () => clearInterval(interval);
     }, [screenerData]);
 
-    const renderBar = (isBullish, isDisabled = false) => isDisabled ? <span className='gray-bar' /> : isBullish ? <span className='bullish-bar' /> : <span className='bearish-bar' />;
+    const renderBar = (isBullish, isDisabled = false, counter = 0) => isDisabled ? <span className='gray-bar' /> : isBullish ? <span className='bullish-bar'>{counter > 0 ? counter : ''}</span> : <span className='bearish-bar'>{counter > 0 ? counter : ''}</span>;
 
     // Filter processed data based on search query
     const filteredPairs = Object.keys(screenerData).filter(pair =>
@@ -212,9 +213,9 @@ export default function Home() {
                     className='search-bar'
                 />
                 <div className="switcher">
-                    <label class="switch">
+                    <label className="switch">
                         <input type="checkbox" checked={isSwingOn} onClick={handleSwingToggle} />
-                        <span class="slider round"></span>
+                        <span className="slider round"></span>
                     </label>
                     Swing is {isSwingOn ? 'ON' : 'OFF'}
                 </div>
@@ -269,7 +270,7 @@ export default function Home() {
                                         <div className="timeframe-name">{getTimeframeName(timeframe)} :</div>
                                         <div className="timeframe-value">{!Array.of('30S', '1', '5').includes(timeframe) ? renderBar(tfData.structure) : ' '}</div>
                                         <div className="timeframe-value med">{renderBar(tfData.ma)}</div>
-                                        <div className="timeframe-value low last">{renderBar(tfData.candleManipulation)}</div>
+                                        <div className="timeframe-value low last">{renderBar(tfData.candleManipulation, false, tfData.totalCandleManipulation)}</div>
                                     </div>
                                 )
                             })}
